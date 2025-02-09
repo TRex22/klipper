@@ -318,7 +318,7 @@ class ProbeSessionHelper:
             epos = self.mcu_probe.probing_move(pos, speed)
         except self.printer.command_error as e:
             reason = str(e)
-            if "Timeout during endstop homing" in reason:
+            if "Timeout during homing" in reason:
                 reason += HINT_TIMEOUT
             raise self.printer.command_error(reason)
         # Allow axis_twist_compensation to update results

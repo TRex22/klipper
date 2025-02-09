@@ -1639,7 +1639,11 @@ Support for ADXL345 accelerometers. This support allows one to query
 accelerometer measurements from the sensor. This enables an
 ACCELEROMETER_MEASURE command (see [G-Codes](G-Codes.md#adxl345) for
 more information). The default chip name is "default", but one may
-specify an explicit name (eg, [adxl345 my_chip_name]).
+specify an explicit name (eg, [adxl345 my_chip_name]). Note that if `probe_pin`
+parameter is set, this enables Z-probe functionality of ADXL345, which
+enables additional parameters. This also enables `probe:z_virtual_endstop`
+pin which can be used as a Z axis endstop on the printers with the
+appropriate kinematics.
 
 ```
 [adxl345]
@@ -1667,6 +1671,42 @@ cs_pin:
 #   not recommended to change this rate from the default 3200, and
 #   rates below 800 will considerably affect the quality of resonance
 #   measurements.
+#probe_pin:
+#   Pin on the printer MCU that the accelerometer is connected to as a
+#   Z probe. Setting this pin enables the functionality of ADXL345
+#   working as a Z probe. All parameters below are enabled only if
+#   probe_pin is set. Disabled by default.
+#int_pin:
+#   Either int1 or int2; the pin on the ADXL345 that will be connected
+#   to the probe pin on the printer MCU. By default, int_pin is high when
+#   probe is triggered and low otherwise; this behavior can be changed
+#   by using `!int1` or `!int2` respectively, in which case the int_pin
+#   is low when triggered and high otherwise. If probe_pin is set, this
+#   parameter must be provided.
+#tap_thresh: 5000
+#   Acceleration threshold in mm/sec^2; when the accelerometer exceeds
+#   this acceleration during probing for at most tap_dur seconds (see
+#   below), it will consider that it hit the printer bed, triggering
+#   the probe. The default is 5000 mm/sec^2, which may be too sensitive
+#   for many printers.
+#tap_dur: 0.01
+#   The maximum duration of a 'tap' during probing. If the acceleration
+#   exceeds tap_thresh for at most tap_dur during probing, this will
+#   trigger the probe endstop. The default is 0.01 sec.
+#bed_probe_point:
+#   X, Y coordinates of a point to test the bed offset. Used by
+#   `BED_OFFSET_CALIBRATE` command. The nozzle height prior to
+#   probing can be set via `horizontal_move_z` parameter.
+#z_offset:
+#speed:
+#samples:
+#sample_retract_dist:
+#samples_result:
+#samples_tolerance:
+#samples_tolerance_retries:
+#horizontal_move_z:
+#horizontal_move_speed:
+#   See the "probe" section for information on these parameters.
 ```
 
 ### [lis2dw]
@@ -1904,6 +1944,16 @@ z_offset:
 #   triggers. This parameter must be provided.
 #speed: 5.0
 #   Speed (in mm/s) of the Z axis when probing. The default is 5mm/s.
+#z_endstop_probe_point:
+#    X,Y coordinates of the point where the z endstop position can be
+#    tested. If set, this is where Z_ENDSTOP_CALIBRATE command will
+#    run an automatic test to adjust z endstop position.
+#horizontal_move_z: 5
+#   The height (in mm) that the head should be commanded to move to
+#   just prior to starting a probe operation. The default is 5.
+#horizontal_move_speed: 50
+#   The speed (in mm/s) of non-probing moves during the Z endstop
+#   calibration. The default is 50.
 #samples: 1
 #   The number of times to probe each point. The probed z-values will
 #   be averaged. The default is to probe 1 time.
