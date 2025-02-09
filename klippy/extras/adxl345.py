@@ -237,7 +237,7 @@ class ADXL345EndstopWrapper:
         adxl345 = self.adxl345
         # if not adxl345.initialized():
         # ADXL345 that works as a probe must be initialized from the start
-        adxl345.initialize()
+        # adxl345.initialize()
         adxl345.set_reg(REG_POWER_CTL, 0x00)
         if self.inverted:
             adxl345.set_reg(REG_DATA_FORMAT, 0x2B)
@@ -316,7 +316,7 @@ class ADXL345EndstopWrapper:
         clock = self.adxl345.get_mcu().print_time_to_clock(print_time +
                                                            ADXL345_REST_TIME)
         # if not adxl345.initialized():
-        adxl345.initialize()
+        # adxl345.initialize()
         adxl345.set_reg(REG_INT_ENABLE, 0x00, minclock=clock)
         adxl345.read_reg(REG_INT_SOURCE)
         adxl345.set_reg(REG_INT_ENABLE, 0x40, minclock=clock)
