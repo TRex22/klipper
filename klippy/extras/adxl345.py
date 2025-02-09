@@ -253,7 +253,7 @@ class ADXL345EndstopWrapper:
         reactor.register_callback(lambda ev: self._offset_axes(gcmd, retries),
                                   reactor.monotonic() + PROBE_CALIBRATION_TIME)
     def _offset_axes(self, gcmd, retries):
-        res = self.adxl345.finish_measurements()
+        res = self.adxl345._finish_measurements()
         msg_func = gcmd.respond_info if gcmd is not None else logging.info
         samples = res.decode_samples()
         x_ofs = sum([s.accel_x for s in samples]) / len(samples)
