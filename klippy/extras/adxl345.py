@@ -235,7 +235,7 @@ class ADXL345EndstopWrapper:
                 self.add_stepper(stepper)
     def calibrate(self, gcmd=None, retries=3):
         adxl345 = self.adxl345
-        if not adxl345.is_initialized():
+        if not adxl345.initialized():
             # ADXL345 that works as a probe must be initialized from the start
             adxl345.initialize()
         adxl345.set_reg(REG_POWER_CTL, 0x00)
@@ -315,7 +315,7 @@ class ADXL345EndstopWrapper:
         print_time = toolhead.get_last_move_time()
         clock = self.adxl345.get_mcu().print_time_to_clock(print_time +
                                                            ADXL345_REST_TIME)
-        if not adxl345.is_initialized():
+        if not adxl345.initialized():
             adxl345.initialize()
         adxl345.set_reg(REG_INT_ENABLE, 0x00, minclock=clock)
         adxl345.read_reg(REG_INT_SOURCE)
