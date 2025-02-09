@@ -248,7 +248,7 @@ class ADXL345EndstopWrapper:
         # Offset freefall accleration on the true Z axis
         for reg in self.ofs_regs:
             adxl345.set_reg(reg, 0x00)
-        adxl345.start_measurements()
+        adxl345._start_measurements(self)
         reactor = self.printer.get_reactor()
         reactor.register_callback(lambda ev: self._offset_axes(gcmd, retries),
                                   reactor.monotonic() + PROBE_CALIBRATION_TIME)
