@@ -4,7 +4,7 @@
 #
 # This file may be distributed under the terms of the GNU GPLv3 license.
 import logging, math, time, collections, multiprocessing, os
-from . import bus, manual_probe, probe
+from . import bus, bulk_sensor, manual_probe, probe
 
 # ADXL345 registers
 REG_DEVID = 0x00
