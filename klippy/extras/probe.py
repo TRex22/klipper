@@ -563,7 +563,7 @@ class PrinterProbe:
     def __init__(self, config, mcu_probe=None):
         self.printer = config.get_printer()
 
-        if mcu_probe not None:
+        if mcu_probe is not None:
             self.mcu_probe = mcu_probe
         else:
             self.mcu_probe = ProbeEndstopWrapper(config)
