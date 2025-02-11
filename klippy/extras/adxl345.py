@@ -192,6 +192,13 @@ class ADXL345:
         self.printer = config.get_printer()
         AccelCommandHelper(config, self)
         self.axes_map = read_axes_map(config, SCALE_XY, SCALE_XY, SCALE_Z)
+        self.last_x = 0.
+        self.last_y = 0.
+        self.last_z = 0.
+        self.gcode = self.printer.lookup_object('gcode')
+        self.gcode.register_mux_command("ACCELEROMETER_GET_LAST", "CHIP",
+           self.name, self.cmd_GET_LAST,
+           desc="Get last ADXL345 values")
         self.data_rate = config.getint('rate', 3200)
         if self.data_rate not in QUERY_RATES:
             raise config.error("Invalid rate parameter: %d" % (self.data_rate,))
@@ -256,6 +263,9 @@ class ADXL345:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
+            self.last_x = x
+            self.last_y = y
+            self.last_z = z
             samples[count] = (round(ptime, 6), x, y, z)
             count += 1
         del samples[count:]
@@ -297,6 +307,9 @@ class ADXL345:
             return {}
         return {'data': samples, 'errors': self.last_error_count,
                 'overflows': self.ffreader.get_last_overflows()}
+    def cmd_GET_LAST(self, gcmd):
+        gcmd.respond_info("Last accelerometer values (x,y,z): %.6f, %.6f, %.6f"
+            % (self.last_x, self.last_y, self.last_z))
 
 def load_config(config):
     return ADXL345(config)
