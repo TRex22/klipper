@@ -195,6 +195,7 @@ class ADXL345:
         self.last_x = 0.
         self.last_y = 0.
         self.last_z = 0.
+        self.printer.add_object("adxl345 " + self.name, self)
         self.gcode = self.printer.lookup_object('gcode')
         self.data_rate = config.getint('rate', 3200)
         if self.data_rate not in QUERY_RATES:
@@ -310,6 +311,12 @@ class ADXL345:
     def cmd_GET_LAST(self, gcmd):
         gcmd.respond_info("Last accelerometer values (x,y,z): %.6f, %.6f, %.6f"
             % (self.last_x, self.last_y, self.last_z))
+    def get_status(self, eventtime):
+        return {
+            'x': self.last_x,
+            'y': self.last_y,
+            'z': self.last_z
+        }
 
 def load_config(config):
     return ADXL345(config)
