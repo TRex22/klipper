@@ -195,7 +195,6 @@ class ADXL345:
         self.last_x = 0.
         self.last_y = 0.
         self.last_z = 0.
-        self.printer.add_object("adxl345 " + self.name, self)
         self.gcode = self.printer.lookup_object('gcode')
         self.data_rate = config.getint('rate', 3200)
         if self.data_rate not in QUERY_RATES:
@@ -222,6 +221,7 @@ class ADXL345:
         self.gcode.register_mux_command("ACCELEROMETER_GET_LAST", "CHIP",
            self.name, self.cmd_GET_LAST,
            desc="Get last ADXL345 values")
+        self.printer.add_object("adxl345 " + self.name, self)
         hdr = ('time', 'x_acceleration', 'y_acceleration', 'z_acceleration')
         self.batch_bulk.add_mux_endpoint("adxl345/dump_adxl345", "sensor",
                                          self.name, {'header': hdr})
