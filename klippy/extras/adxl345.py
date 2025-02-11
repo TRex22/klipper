@@ -162,6 +162,9 @@ class AccelCommandHelper:
         if not values:
             raise gcmd.error("No accelerometer measurements found")
         _, accel_x, accel_y, accel_z = values[-1]
+        self.last_x = accel_x
+        self.last_y = accel_y
+        self.last_z = accel_z
         gcmd.respond_info("accelerometer values (x, y, z): %.6f, %.6f, %.6f"
                           % (accel_x, accel_y, accel_z))
     cmd_ACCELEROMETER_DEBUG_READ_help = "Query register (for debugging)"
