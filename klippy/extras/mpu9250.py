@@ -58,6 +58,9 @@ BATCH_UPDATES = 0.100
 class MPU9250:
     def __init__(self, config):
         self.printer = config.get_printer()
+        self.last_x = 0.
+        self.last_y = 0.
+        self.last_z = 0.
         adxl345.AccelCommandHelper(config, self)
         self.axes_map = adxl345.read_axes_map(config, SCALE, SCALE, SCALE)
         self.data_rate = config.getint('rate', 4000)
@@ -80,9 +83,6 @@ class MPU9250:
             self.printer, self._process_batch,
             self._start_measurements, self._finish_measurements, BATCH_UPDATES)
         self.name = config.get_name().split()[-1]
-        self.last_x = 0.
-        self.last_y = 0.
-        self.last_z = 0.
         self.gcode = self.printer.lookup_object('gcode')
         self.printer.add_object("mpu9250 " + self.name, self)
         self.gcode.register_mux_command("ACCELEROMETER_GET_LAST", "CHIP",
