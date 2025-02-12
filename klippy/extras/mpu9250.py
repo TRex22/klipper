@@ -80,6 +80,14 @@ class MPU9250:
             self.printer, self._process_batch,
             self._start_measurements, self._finish_measurements, BATCH_UPDATES)
         self.name = config.get_name().split()[-1]
+        self.last_x = 0.
+        self.last_y = 0.
+        self.last_z = 0.
+        self.gcode = self.printer.lookup_object('gcode')
+        self.printer.add_object("mpu9250 " + self.name, self)
+        self.gcode.register_mux_command("ACCELEROMETER_GET_LAST", "CHIP",
+           self.name, self.cmd_GET_LAST,
+           desc="Get last MPU9250 values")
         hdr = ('time', 'x_acceleration', 'y_acceleration', 'z_acceleration')
         self.batch_bulk.add_mux_endpoint("mpu9250/dump_mpu9250", "sensor",
                                          self.name, {'header': hdr})
@@ -111,8 +119,20 @@ class MPU9250:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
+            self.last_x = x
+            self.last_y = y
+            self.last_z = z
             samples[count] = (round(ptime, 6), x, y, z)
             count += 1
+    def cmd_GET_LAST(self, gcmd):
+        gcmd.respond_info("Last accelerometer values (x,y,z): %.6f, %.6f, %.6f"
+            % (self.last_x, self.last_y, self.last_z))
+    def get_status(self, eventtime):
+        return {
+            'x': self.last_x,
+            'y': self.last_y,
+            'z': self.last_z
+        }
     # Start, stop, and process message batches
     def _start_measurements(self):
         # In case of miswiring, testing MPU9250 device ID prevents treating
