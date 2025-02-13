@@ -87,7 +87,7 @@ class MPU9250:
 
         # Add to register_commands() in AccelCommandHelper:
         self.gcode = self.printer.lookup_object('gcode')
-        self.gcode.register_mux_command("CALIBRATE_Z_OFFSET", "CHIP", name,
+        self.gcode.register_mux_command("CALIBRATE_Z_OFFSET", "CHIP", self.name,
                                 self.cmd_CALIBRATE_Z_OFFSET,
                                 desc="Calibrate Z offset using accelerometer")
         hdr = ('time', 'x_acceleration', 'y_acceleration', 'z_acceleration')
