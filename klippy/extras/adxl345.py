@@ -305,9 +305,9 @@ class ADXL345:
             return {}
         
         # Update last values after converting samples
-        self.last_x = samples[-1][1]
-        self.last_y = samples[-1][2]
-        self.last_z = samples[-1][3]
+        self.last_x = samples[1]
+        self.last_y = samples[2]
+        self.last_z = samples[3]
 
         return {'data': samples, 'errors': self.last_error_count,
                 'overflows': self.ffreader.get_last_overflows()}
