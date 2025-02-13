@@ -138,7 +138,7 @@ class AccelCommandHelper:
         gcode.register_mux_command("ACCELEROMETER_DEBUG_WRITE", "CHIP", name,
                                    self.cmd_ACCELEROMETER_DEBUG_WRITE,
                                    desc=self.cmd_ACCELEROMETER_DEBUG_WRITE_help)
-        gcode.register_mux_command("CALIBRATE_Z_OFFSET_BED", "CHIP", self.name,
+        gcode.register_mux_command("CALIBRATE_Z_OFFSET_BED", "CHIP", name,
                                 self.cmd_CALIBRATE_Z_OFFSET_BED,
                                 desc="Calibrate Z offset using accelerometer")
     cmd_CALIBRATE_Z_OFFSET_BED_help = "Start/stop accelerometer z offset calibration"
