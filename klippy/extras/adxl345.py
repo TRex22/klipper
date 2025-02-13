@@ -229,7 +229,7 @@ class ADXL345:
             self.printer, self._process_batch,
             self._start_measurements, self._finish_measurements, BATCH_UPDATES)
         self.name = config.get_name().split()[-1]
-        self.printer.add_object("adxl345 " + self.name, self)
+        self.printer.add_object(self.name, self)
         hdr = ('time', 'x_acceleration', 'y_acceleration', 'z_acceleration')
         self.batch_bulk.add_mux_endpoint("adxl345/dump_adxl345", "sensor",
                                          self.name, {'header': hdr})
