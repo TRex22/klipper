@@ -51,6 +51,7 @@ I2C_SERIAL_TYPE = 'i2c'
 class LIS2DW:
     def __init__(self, config, lis_type):
         self.printer = config.get_printer()
+        self.last_x = self.last_y = self.last_z = 0. # Setup variables to store latest readings
         adxl345.AccelCommandHelper(config, self)
         self.lis_type = lis_type
         if self.lis_type == LIS2DW_TYPE:

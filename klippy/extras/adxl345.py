@@ -83,6 +83,13 @@ class AccelQueryHelper:
                     break
                 samples[count] = Accel_Measurement(samp_time, x, y, z)
                 count += 1
+
+        # Store last sample
+        # Possibly average samples?
+        self.last_x = samples[-1].accel_x
+        self.last_y = samples[-1].accel_y
+        self.last_z = samples[-1].accel_z
+
         del samples[count:]
         return self.samples
     def write_to_file(self, filename):
@@ -190,6 +197,7 @@ BATCH_UPDATES = 0.100
 class ADXL345:
     def __init__(self, config):
         self.printer = config.get_printer()
+        self.last_x = self.last_y = self.last_z = 0. # Setup variables to store latest readings
         AccelCommandHelper(config, self)
         self.axes_map = read_axes_map(config, SCALE_XY, SCALE_XY, SCALE_Z)
         self.data_rate = config.getint('rate', 3200)

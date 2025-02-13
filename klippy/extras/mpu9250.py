@@ -58,6 +58,7 @@ BATCH_UPDATES = 0.100
 class MPU9250:
     def __init__(self, config):
         self.printer = config.get_printer()
+        self.last_x = self.last_y = self.last_z = 0. # Setup variables to store latest readings
         adxl345.AccelCommandHelper(config, self)
         self.axes_map = adxl345.read_axes_map(config, SCALE, SCALE, SCALE)
         self.data_rate = config.getint('rate', 4000)
