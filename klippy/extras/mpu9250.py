@@ -87,14 +87,14 @@ class MPU9250:
 
         # Add to register_commands() in AccelCommandHelper:
         self.gcode = self.printer.lookup_object('gcode')
-        self.gcode.register_mux_command("CALIBRATE_Z_OFFSET", "CHIP", self.name,
-                                self.cmd_CALIBRATE_Z_OFFSET,
+        self.gcode.register_mux_command("CALIBRATE_Z_OFFSET_BED", "CHIP", self.name,
+                                self.cmd_CALIBRATE_Z_OFFSET_BED,
                                 desc="Calibrate Z offset using accelerometer")
         hdr = ('time', 'x_acceleration', 'y_acceleration', 'z_acceleration')
         self.batch_bulk.add_mux_endpoint("mpu9250/dump_mpu9250", "sensor",
                                          self.name, {'header': hdr})
         
-    def cmd_CALIBRATE_Z_OFFSET(self, gcmd):
+    def cmd_CALIBRATE_Z_OFFSET_BED(self, gcmd):
         toolhead = self.printer.lookup_object('toolhead')
         
         # Home first
