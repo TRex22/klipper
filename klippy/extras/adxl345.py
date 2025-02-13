@@ -169,6 +169,11 @@ class AccelCommandHelper:
         if not values:
             raise gcmd.error("No accelerometer measurements found")
         _, accel_x, accel_y, accel_z = values[-1]
+
+        self.last_x = accel_x
+        self.last_y = accel_y
+        self.last_z = accel_z
+
         gcmd.respond_info("accelerometer values (x, y, z): %.6f, %.6f, %.6f"
                           % (accel_x, accel_y, accel_z))
     cmd_ACCELEROMETER_DEBUG_READ_help = "Query register (for debugging)"
@@ -264,6 +269,9 @@ class ADXL345:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
+            self.last_x = x
+            self.last_y = y
+            self.last_z = z
             samples[count] = (round(ptime, 6), x, y, z)
             count += 1
         del samples[count:]
@@ -303,12 +311,6 @@ class ADXL345:
         self._convert_samples(samples)
         if not samples:
             return {}
-        
-        # Update last values after converting samples
-        self.last_x = samples[1]
-        self.last_y = samples[2]
-        self.last_z = samples[3]
-
         return {'data': samples, 'errors': self.last_error_count,
                 'overflows': self.ffreader.get_last_overflows()}
 

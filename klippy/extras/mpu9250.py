@@ -112,6 +112,9 @@ class MPU9250:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
+            self.last_x = x
+            self.last_y = y
+            self.last_z = z
             samples[count] = (round(ptime, 6), x, y, z)
             count += 1
     # Start, stop, and process message batches
