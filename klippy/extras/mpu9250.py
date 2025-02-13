@@ -174,7 +174,12 @@ class MPU9250:
             return {}
         return {'data': samples, 'errors': self.last_error_count,
                 'overflows': self.ffreader.get_last_overflows()}
-
+    def get_status(self, eventtime):
+        return {
+            'x': self.last_x,
+            'y': self.last_y,
+            'z': self.last_z
+        }
 def load_config(config):
     return MPU9250(config)
 
