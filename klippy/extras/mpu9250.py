@@ -84,9 +84,47 @@ class MPU9250:
             self._start_measurements, self._finish_measurements, BATCH_UPDATES)
         self.name = config.get_name().split()[-1]
         self.printer.add_object(self.name, self)
+
+        # Add to register_commands() in AccelCommandHelper:
+        self.gcode = self.printer.lookup_object('gcode')
+        self.gcode.register_mux_command("CALIBRATE_Z_OFFSET", "CHIP", name,
+                                self.cmd_CALIBRATE_Z_OFFSET,
+                                desc="Calibrate Z offset using accelerometer")
         hdr = ('time', 'x_acceleration', 'y_acceleration', 'z_acceleration')
         self.batch_bulk.add_mux_endpoint("mpu9250/dump_mpu9250", "sensor",
                                          self.name, {'header': hdr})
+        
+    def cmd_CALIBRATE_Z_OFFSET(self, gcmd):
+        toolhead = self.printer.lookup_object('toolhead')
+        
+        # Home first
+        self.printer.lookup_object('gcode').run_script("G28")
+        
+        # Move to test position
+        toolhead.manual_move([86, 86, 5], 100)
+        toolhead.wait_moves()
+        
+        # Start measurements
+        aclient = self.start_internal_client()
+        
+        # Move down slowly to probe
+        toolhead.manual_move([86, 86, -0.2], 8)
+        toolhead.wait_moves()
+        
+        # Get measurements
+        aclient.finish_measurements()
+        values = aclient.get_samples()
+        
+        if values:
+            z_offset = values[-1].accel_z
+            gcmd.respond_info(f"Z offset calibration complete. New offset: {z_offset}")
+        else:
+            gcmd.respond_info("No measurements found")
+        
+        # Return to safe height
+        toolhead.manual_move([86, 86, 5], 100)
+        toolhead.wait_moves()
+
     def _build_config(self):
         cmdqueue = self.i2c.get_command_queue()
         self.mcu.add_config_cmd("config_mpu9250 oid=%d i2c_oid=%d"
