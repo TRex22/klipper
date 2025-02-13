@@ -202,7 +202,9 @@ BATCH_UPDATES = 0.100
 class ADXL345:
     def __init__(self, config):
         self.printer = config.get_printer()
-        self.last_x = self.last_y = self.last_z = 0. # Setup variables to store latest readings
+        self.last_x = 0.
+        self.last_y = 0.
+        self.last_z = 0.
         AccelCommandHelper(config, self)
         self.axes_map = read_axes_map(config, SCALE_XY, SCALE_XY, SCALE_Z)
         self.data_rate = config.getint('rate', 3200)

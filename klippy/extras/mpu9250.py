@@ -58,7 +58,9 @@ BATCH_UPDATES = 0.100
 class MPU9250:
     def __init__(self, config):
         self.printer = config.get_printer()
-        self.last_x = self.last_y = self.last_z = 0. # Setup variables to store latest readings
+        self.last_x = 0.
+        self.last_y = 0.
+        self.last_z = 0.
         adxl345.AccelCommandHelper(config, self)
         self.axes_map = adxl345.read_axes_map(config, SCALE, SCALE, SCALE)
         self.data_rate = config.getint('rate', 4000)
@@ -170,12 +172,6 @@ class MPU9250:
         self._convert_samples(samples)
         if not samples:
             return {}
-        
-        # Update last values after converting samples
-        self.last_x = samples[-1][1]
-        self.last_y = samples[-1][2]
-        self.last_z = samples[-1][3]
-        
         return {'data': samples, 'errors': self.last_error_count,
                 'overflows': self.ffreader.get_last_overflows()}
 
