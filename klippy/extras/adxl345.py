@@ -143,6 +143,11 @@ class AccelCommandHelper:
                                 desc="Calibrate Z offset using accelerometer")
     cmd_CALIBRATE_Z_OFFSET_BED_help = "Start/stop accelerometer z offset calibration"
     def cmd_CALIBRATE_Z_OFFSET_BED(self, gcmd):
+        gcmd.respond_info("Start Calculating Bed Z Offset ...")
+
+        # Start measurements first
+        aclient = self.start_internal_client()
+
         toolhead = self.printer.lookup_object('toolhead')
 
         # Home first
@@ -151,9 +156,6 @@ class AccelCommandHelper:
         # Move to test position
         toolhead.manual_move([86, 86, 5], 100)
         toolhead.wait_moves()
-
-        # Start measurements
-        aclient = self.start_internal_client()
 
         # Move down slowly to probe
         toolhead.manual_move([86, 86, -0.2], 8)
