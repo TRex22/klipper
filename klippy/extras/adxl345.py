@@ -145,8 +145,11 @@ class AccelCommandHelper:
     def cmd_CALIBRATE_Z_OFFSET_BED(self, gcmd):
         gcmd.respond_info("Start Calculating Bed Z Offset ...")
         toolhead = self.printer.lookup_object('toolhead')
+        gcode = self.printer.lookup_object('gcode')
 
-        gcmd.respond_info("Loaded toolhead")
+        gcmd.respond_info("Loaded toolhead and gcode")
+
+        gcode.run_script("G28 XYZ")
 
         aclient = self.chip.start_internal_client()
         self.printer.lookup_object('toolhead').dwell(1.)
