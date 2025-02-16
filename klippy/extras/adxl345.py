@@ -144,36 +144,45 @@ class AccelCommandHelper:
     cmd_CALIBRATE_Z_OFFSET_BED_help = "Start/stop accelerometer z offset calibration"
     def cmd_CALIBRATE_Z_OFFSET_BED(self, gcmd):
         gcmd.respond_info("Start Calculating Bed Z Offset ...")
-
-        # Start measurements first
-        aclient = self.chip.start_internal_client()
-
         toolhead = self.printer.lookup_object('toolhead')
 
-        # Home first
-        self.printer.lookup_object('gcode').run_script("G28")
+        gcmd.respond_info("Loaded toolhead")
 
-        # Move to test position
-        toolhead.manual_move([86, 86, 5], 100)
-        toolhead.wait_moves()
-
-        # Move down slowly to probe
-        toolhead.manual_move([86, 86, -0.2], 8)
-        toolhead.wait_moves()
-
-        # Get measurements
+        aclient = self.chip.start_internal_client()
+        self.printer.lookup_object('toolhead').dwell(1.)
+        gcmd.respond_info("Started getting samples")
         aclient.finish_measurements()
         values = aclient.get_samples()
 
-        if values:
-            z_offset = values[-1].accel_z
-            gcmd.respond_info(f"Z offset calibration complete. New offset: {z_offset}")
-        else:
-            gcmd.respond_info("No measurements found")
+        gcmd.respond_info("Got values")
 
-        # Return to safe height
-        toolhead.manual_move([86, 86, 5], 100)
-        toolhead.wait_moves()
+        # # Start measurements first
+        # aclient = self.chip.start_internal_client()
+
+        # # Home first
+        # self.printer.lookup_object('gcode').run_script("G28")
+
+        # # Move to test position
+        # toolhead.manual_move([86, 86, 5], 100)
+        # toolhead.wait_moves()
+
+        # # Move down slowly to probe
+        # toolhead.manual_move([86, 86, -0.2], 8)
+        # toolhead.wait_moves()
+
+        # # Get measurements
+        # aclient.finish_measurements()
+        # values = aclient.get_samples()
+
+        # if values:
+        #     z_offset = values[-1].accel_z
+        #     gcmd.respond_info(f"Z offset calibration complete. New offset: {z_offset}")
+        # else:
+        #     gcmd.respond_info("No measurements found")
+
+        # # Return to safe height
+        # toolhead.manual_move([86, 86, 5], 100)
+        # toolhead.wait_moves()
     cmd_ACCELEROMETER_MEASURE_help = "Start/stop accelerometer"
     def cmd_ACCELEROMETER_MEASURE(self, gcmd):
         if self.bg_client is None:
