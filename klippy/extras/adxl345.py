@@ -146,7 +146,7 @@ class AccelCommandHelper:
         gcmd.respond_info("Start Calculating Bed Z Offset ...")
 
         # Start measurements first
-        aclient = self.start_internal_client()
+        aclient = self.chip.start_internal_client()
 
         toolhead = self.printer.lookup_object('toolhead')
 
