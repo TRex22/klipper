@@ -50,6 +50,10 @@ class AccelQueryHelper:
         if len(self.msgs) >= 10000:
             # Avoid filling up memory with too many samples
             return False
+        # Get current Z height from toolhead
+        current_pos = self.printer.lookup_object('toolhead').get_position()
+        z_height = current_pos[2]
+        msg.append(z_height)
         self.msgs.append(msg)
         return True
     def has_valid_samples(self):
@@ -76,14 +80,11 @@ class AccelQueryHelper:
         count = 0
         self.samples = samples = [None] * total
         for msg in self.msgs:
-            for samp_time, x, y, z in msg['data']:
+            for samp_time, x, y, z, z_height in msg['data']:
                 if samp_time < self.request_start_time:
                     continue
                 if samp_time > self.request_end_time:
                     break
-                # Get current Z height from toolhead
-                current_pos = self.printer.lookup_object('toolhead').get_position()
-                z_height = current_pos[2]
                 samples[count] = Accel_Measurement(samp_time, x, y, z, z_height)
                 count += 1
         del samples[count:]
