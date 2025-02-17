@@ -53,7 +53,9 @@ class AccelQueryHelper:
         # Get current Z height from toolhead
         current_pos = self.printer.lookup_object('toolhead').get_position()
         z_height = current_pos[2]
-        msg.append(z_height)
+        gcmd.respond_info(f"z_height: {z_height}")
+        # msg.append(z_height)
+
         self.msgs.append(msg)
         return True
     def has_valid_samples(self):
@@ -99,7 +101,8 @@ class AccelQueryHelper:
             f = open(filename, "w")
             f.write("#time,accel_x,accel_y,accel_z,z_height\n")
             samples = self.samples or self.get_samples()
-            for t, accel_x, accel_y, accel_z, z_height in samples:
+            for t, accel_x, accel_y, accel_z in samples:
+                z_height = 0.0
                 f.write("%.6f,%.6f,%.6f,%.6f,%.6f\n" % (
                     t, accel_x, accel_y, accel_z, z_height))
             f.close()
