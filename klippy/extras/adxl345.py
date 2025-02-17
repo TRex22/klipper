@@ -15,6 +15,14 @@ REG_FIFO_CTL = 0x38
 REG_MOD_READ = 0x80
 REG_MOD_MULTI = 0x40
 
+# Register constants used for tap detection
+REG_INT_ENABLE = 0x2E
+REG_INT_MAP = 0x2F
+REG_INT_SOURCE = 0x30
+REG_TAP_AXES = 0x2A
+REG_THRESH_TAP = 0x1D
+REG_DUR = 0x21
+
 QUERY_RATES = {
     25: 0x8, 50: 0x9, 100: 0xa, 200: 0xb, 400: 0xc,
     800: 0xd, 1600: 0xe, 3200: 0xf,
@@ -217,6 +225,33 @@ class ADXL345:
         hdr = ('time', 'x_acceleration', 'y_acceleration', 'z_acceleration')
         self.batch_bulk.add_mux_endpoint("adxl345/dump_adxl345", "sensor",
                                          self.name, {'header': hdr})
+        
+        self.int_pin = config.getint('int_pin', None)
+        self.last_tap = False
+        self.last_x = 0
+        self.last_y = 0 
+        self.last_z = 0
+
+        if self.int_pin is not None:
+        # Configure tap detection
+            self.set_reg(REG_INT_MAP, 0x00)     # Map tap to INT1
+            self.set_reg(REG_TAP_AXES, 0x07)    # Enable tap on XYZ axes
+            self.set_reg(REG_THRESH_TAP, 0x40)  # Set tap threshold
+            self.set_reg(REG_DUR, 0x30)         # Set tap duration
+            self.set_reg(REG_INT_ENABLE, 0x40)  # Enable single tap interrupt
+
+    def get_status(self, eventtime):
+        status = {
+            'last_x': self.last_x,
+            'last_y': self.last_y,
+            'last_z': self.last_z,
+            'tap_detected': self.last_tap
+        }
+        return status
+    
+    def reset_tap(self):
+        self.last_tap = False
+
     def _build_config(self):
         cmdqueue = self.spi.get_command_queue()
         self.query_adxl345_cmd = self.mcu.lookup_command(
@@ -256,8 +291,16 @@ class ADXL345:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
+            self.last_x = x
+            self.last_y = y
+            self.last_z = z
             samples[count] = (round(ptime, 6), x, y, z)
             count += 1
+
+        if self.int_pin is not None:
+            int_source = self.read_reg(REG_INT_SOURCE)
+            self.last_tap = bool(int_source & 0x40)
+            
         del samples[count:]
     # Start, stop, and process message batches
     def _start_measurements(self):
