@@ -28,7 +28,7 @@ SCALE_XY = 0.003774 * FREEFALL_ACCEL # 1 / 265 (at 3.3V) mg/LSB
 SCALE_Z  = 0.003906 * FREEFALL_ACCEL # 1 / 256 (at 3.3V) mg/LSB
 
 Accel_Measurement = collections.namedtuple(
-    'Accel_Measurement', ('time', 'accel_x', 'accel_y', 'accel_z'))
+    'Accel_Measurement', ('time', 'accel_x', 'accel_y', 'accel_z', 'z_height'))
 
 # Helper class to obtain measurements
 class AccelQueryHelper:
@@ -81,7 +81,10 @@ class AccelQueryHelper:
                     continue
                 if samp_time > self.request_end_time:
                     break
-                samples[count] = Accel_Measurement(samp_time, x, y, z)
+                # Get current Z height from toolhead
+                current_pos = self.printer.lookup_object('toolhead').get_position()
+                z_height = current_pos[2]
+                samples[count] = Accel_Measurement(samp_time, x, y, z, z_height)
                 count += 1
         del samples[count:]
         return self.samples
@@ -93,11 +96,11 @@ class AccelQueryHelper:
             except:
                 pass
             f = open(filename, "w")
-            f.write("#time,accel_x,accel_y,accel_z\n")
+            f.write("#time,accel_x,accel_y,accel_z,z_height\n")
             samples = self.samples or self.get_samples()
             for t, accel_x, accel_y, accel_z in samples:
-                f.write("%.6f,%.6f,%.6f,%.6f\n" % (
-                    t, accel_x, accel_y, accel_z))
+                f.write("%.6f,%.6f,%.6f,%.6f,%.6f\n" % (
+                    t, accel_x, accel_y, accel_z, z_height))
             f.close()
         write_proc = multiprocessing.Process(target=write_impl)
         write_proc.daemon = True
@@ -161,7 +164,7 @@ class AccelCommandHelper:
         values = aclient.get_samples()
         if not values:
             raise gcmd.error("No accelerometer measurements found")
-        _, accel_x, accel_y, accel_z = values[-1]
+        _, accel_x, accel_y, accel_z, z_height = values[-1]
         gcmd.respond_info("accelerometer values (x, y, z): %.6f, %.6f, %.6f"
                           % (accel_x, accel_y, accel_z))
     cmd_ACCELEROMETER_DEBUG_READ_help = "Query register (for debugging)"
