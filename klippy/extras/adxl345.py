@@ -228,12 +228,14 @@ class ADXL345:
         
         self.int_pin = config.getint('int_pin', None)
         self.last_tap = False
+        self.tap_z = 0
         self.last_x = 0
         self.last_y = 0 
         self.last_z = 0
 
-        if self.int_pin is not None:
         # Configure tap detection
+        if self.int_pin is not None:
+            logging.info("ADXL345 tap detection enabled!", self.name)
             self.set_reg(REG_INT_MAP, 0x00)     # Map tap to INT1
             self.set_reg(REG_TAP_AXES, 0x07)    # Enable tap on XYZ axes
             self.set_reg(REG_THRESH_TAP, 0x40)  # Set tap threshold
@@ -245,12 +247,14 @@ class ADXL345:
             'last_x': self.last_x,
             'last_y': self.last_y,
             'last_z': self.last_z,
+            'tap_z': self.tap_z,
             'tap_detected': self.last_tap
         }
         return status
     
     def reset_tap(self):
         self.last_tap = False
+        self.tap_z = 0
 
     def _build_config(self):
         cmdqueue = self.spi.get_command_queue()
@@ -300,6 +304,7 @@ class ADXL345:
         if self.int_pin is not None:
             int_source = self.read_reg(REG_INT_SOURCE)
             self.last_tap = bool(int_source & 0x40)
+            self.tap_z = z_pos
             
         del samples[count:]
     # Start, stop, and process message batches
