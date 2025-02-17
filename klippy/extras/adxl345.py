@@ -262,6 +262,10 @@ class ADXL345:
             "query_adxl345 oid=%c rest_ticks=%u", cq=cmdqueue)
         self.ffreader.setup_query_command("query_adxl345_status oid=%c",
                                           oid=self.oid, cq=cmdqueue)
+        # Configure INT pin if specified
+        if self.int_pin is not None:
+            pin = self.mcu.setup_pin('endstop', self.int_pin)
+            self.int_pin_obj = pin
     def read_reg(self, reg):
         params = self.spi.spi_transfer([reg | REG_MOD_READ, 0x00])
         response = bytearray(params['response'])
