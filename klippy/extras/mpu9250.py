@@ -83,6 +83,22 @@ class MPU9250:
         hdr = ('time', 'x_acceleration', 'y_acceleration', 'z_acceleration')
         self.batch_bulk.add_mux_endpoint("mpu9250/dump_mpu9250", "sensor",
                                          self.name, {'header': hdr})
+        self.last_x = self.last_y = self.last_z = 0.
+        self.last_contact_z = None
+        self.contact_count = 0
+
+    def get_status(self, eventtime):
+        return {
+            'x_acceleration': self.last_x or 0.,
+            'y_acceleration': self.last_y or 0.,
+            'z_acceleration': self.last_z or 0.,
+            'last_contact_z': self.last_contact_z,
+            'contact_count': self.contact_count
+        }
+
+    def reset_contact_tracking(self):
+        self.contact_count = 0
+        self.last_contact_z = None
     def _build_config(self):
         cmdqueue = self.i2c.get_command_queue()
         self.mcu.add_config_cmd("config_mpu9250 oid=%d i2c_oid=%d"
@@ -111,6 +127,18 @@ class MPU9250:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
+
+            # Track last values
+            self.last_x = x
+            self.last_y = y
+            self.last_z = z
+            
+            # Detect contact
+            if abs(z) > 1000:
+                self.contact_count += 1
+                toolhead = self.printer.lookup_object('toolhead')
+                self.last_contact_z = toolhead.get_position()[2]
+
             samples[count] = (round(ptime, 6), x, y, z)
             count += 1
     # Start, stop, and process message batches
