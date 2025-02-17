@@ -200,6 +200,10 @@ class ADXL345:
         self.printer = config.get_printer()
         AccelCommandHelper(config, self)
         self.axes_map = read_axes_map(config, SCALE_XY, SCALE_XY, SCALE_Z)
+        self.int_pin = config.getint('int_pin', None)
+        if self.int_pin is not None:
+            ppins = self.printer.lookup_object('pins')
+            self.mcu_int = ppins.setup_pin('endstop', 'gpio%d' % self.int_pin)
         self.data_rate = config.getint('rate', 3200)
         if self.data_rate not in QUERY_RATES:
             raise config.error("Invalid rate parameter: %d" % (self.data_rate,))
