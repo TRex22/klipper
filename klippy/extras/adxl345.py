@@ -53,9 +53,7 @@ class AccelQueryHelper:
         # Get current Z height from toolhead
         current_pos = self.printer.lookup_object('toolhead').get_position()
         z_height = current_pos[2]
-        gcmd.respond_info(f"z_height: {z_height}")
-        # msg.append(z_height)
-
+        msg['z_height'] = z_height
         self.msgs.append(msg)
         return True
     def has_valid_samples(self):
