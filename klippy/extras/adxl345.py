@@ -99,8 +99,7 @@ class AccelQueryHelper:
             f = open(filename, "w")
             f.write("#time,accel_x,accel_y,accel_z,z_height\n")
             samples = self.samples or self.get_samples()
-            for t, accel_x, accel_y, accel_z in samples:
-                z_height = 0.0
+            for t, accel_x, accel_y, accel_z, z_height in samples:
                 f.write("%.6f,%.6f,%.6f,%.6f,%.6f\n" % (
                     t, accel_x, accel_y, accel_z, z_height))
             f.close()
