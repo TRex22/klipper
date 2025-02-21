@@ -81,6 +81,10 @@ class AccelQueryHelper:
                     continue
                 if samp_time > self.request_end_time:
                     break
+                current_pos = self.printer.lookup_object('toolhead').get_position()
+                z_height = current_pos[2]
+                gcmd.respond_info("accel z, z height: %.6f, %.6f" % (z, z_height))
+
                 samples[count] = Accel_Measurement(samp_time, x, y, z)
                 count += 1
         del samples[count:]
