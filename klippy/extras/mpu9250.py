@@ -105,13 +105,14 @@ class MPU9250:
     # Measurement decoding
     def _convert_samples(self, samples):
         (x_pos, x_scale), (y_pos, y_scale), (z_pos, z_scale) = self.axes_map
+        current_z = z_pos
         count = 0
         for ptime, rx, ry, rz in samples:
             raw_xyz = (rx, ry, rz)
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
-            samples[count] = (round(ptime, 6), x, y, z)
+            samples[count] = (round(ptime, 6), x, y, z, current_z)
             count += 1
     # Start, stop, and process message batches
     def _start_measurements(self):
