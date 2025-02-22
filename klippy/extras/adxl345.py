@@ -243,8 +243,8 @@ class ADXL345:
     # Measurement decoding
     def _convert_samples(self, samples):
         (x_pos, x_scale), (y_pos, y_scale), (z_pos, z_scale) = self.axes_map
-        toolhead = self.printer.lookup_object('toolhead')
-        current_z = toolhead.get_position()[2]
+        #toolhead = self.printer.lookup_object('toolhead')
+        current_z = z_pos # toolhead.get_position()[2]
         count = 0
         for ptime, xlow, ylow, zlow, xzhigh, yzhigh in samples:
             if yzhigh & 0x80:
