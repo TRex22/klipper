@@ -113,8 +113,8 @@ class MPU9250:
             z = round(raw_xyz[z_pos] * z_scale, 6)
             # z_mm = (float(current_z) / (1 << 16)) + self.initial_z  # Scale to mm
             # Scale Z position from raw MCU value to mm
-            z_pos = (float(current_z) / 255.0) * self.initial_z
-            samples[count] = (round(ptime, 6), x, y, z, z_pos)
+            z_pos_scaled = (float(current_z) / 255.0) * self.initial_z
+            samples[count] = (round(ptime, 6), x, y, z, z_pos_scaled)
             count += 1
     # Start, stop, and process message batches
     def _start_measurements(self):
