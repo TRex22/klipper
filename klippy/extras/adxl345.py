@@ -259,8 +259,9 @@ class ADXL345:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
-            # z_mm = (float(current_z) / (1 << 16)) + self.initial_z # Scale to mm
-            samples[count] = (round(ptime, 6), x, y, z, current_z)
+            # Scale Z position from raw MCU value to mm
+            z_pos = (float(current_z) / 255.0) * self.initial_z
+            samples[count] = (round(ptime, 6), x, y, z, z_pos)
             count += 1
         del samples[count:]
     # Start, stop, and process message batches
