@@ -280,13 +280,16 @@ class ADXL345:
         self.set_reg(REG_FIFO_CTL, 0x00)
         self.set_reg(REG_BW_RATE, QUERY_RATES[self.data_rate])
         self.set_reg(REG_FIFO_CTL, SET_FIFO_CTL)
+        # Get initial Z position
+        toolhead = self.printer.lookup_object('toolhead')
+        initial_z = toolhead.get_position()[2]
         # Start bulk reading
         rest_ticks = self.mcu.seconds_to_clock(4. / self.data_rate)
         self.query_adxl345_cmd.send([self.oid, rest_ticks])
         self.set_reg(REG_POWER_CTL, 0x08)
         logging.info("ADXL345 starting '%s' measurements", self.name)
         # Initialize clock tracking
-        self.ffreader.note_start()
+        self.ffreader.note_start(initial_z)
         self.last_error_count = 0
     def _finish_measurements(self):
         # Halt bulk reading

@@ -145,13 +145,17 @@ class MPU9250:
         self.set_reg(REG_USER_CTRL, SET_USER_FIFO_EN)
         self.read_reg(REG_INT_STATUS) # clear FIFO overflow flag
 
+        # Get initial Z position
+        toolhead = self.printer.lookup_object('toolhead')
+        initial_z = toolhead.get_position()[2]
+
         # Start bulk reading
         rest_ticks = self.mcu.seconds_to_clock(4. / self.data_rate)
         self.query_mpu9250_cmd.send([self.oid, rest_ticks])
         self.set_reg(REG_FIFO_EN, SET_ENABLE_FIFO)
         logging.info("MPU9250 starting '%s' measurements", self.name)
         # Initialize clock tracking
-        self.ffreader.note_start()
+        self.ffreader.note_start(initial_z)
         self.last_error_count = 0
     def _finish_measurements(self):
         # Halt bulk reading
