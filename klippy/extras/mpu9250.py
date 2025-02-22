@@ -73,7 +73,7 @@ class MPU9250:
         mcu.register_config_callback(self._build_config)
         # Bulk sample message reading
         chip_smooth = self.data_rate * BATCH_UPDATES * 2
-        self.ffreader = bulk_sensor.FixedFreqReader(mcu, chip_smooth, ">hhh")
+        self.ffreader = bulk_sensor.FixedFreqReader(mcu, chip_smooth, ">hhhB")  # Added B for Z position
         self.last_error_count = 0
         # Process messages in batches
         self.batch_bulk = bulk_sensor.BatchBulkHelper(
@@ -105,9 +105,8 @@ class MPU9250:
     # Measurement decoding
     def _convert_samples(self, samples):
         (x_pos, x_scale), (y_pos, y_scale), (z_pos, z_scale) = self.axes_map
-        current_z = z_pos
         count = 0
-        for ptime, rx, ry, rz in samples:
+        for ptime, rx, ry, rz, current_z in samples:
             raw_xyz = (rx, ry, rz)
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)

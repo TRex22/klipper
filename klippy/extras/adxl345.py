@@ -207,7 +207,7 @@ class ADXL345:
         mcu.register_config_callback(self._build_config)
         # Bulk sample message reading
         chip_smooth = self.data_rate * BATCH_UPDATES * 2
-        self.ffreader = bulk_sensor.FixedFreqReader(mcu, chip_smooth, "BBBBB")
+        self.ffreader = bulk_sensor.FixedFreqReader(mcu, chip_smooth, "BBBBBB")
         self.last_error_count = 0
         # Process messages in batches
         self.batch_bulk = bulk_sensor.BatchBulkHelper(
@@ -222,7 +222,10 @@ class ADXL345:
         self.query_adxl345_cmd = self.mcu.lookup_command(
             "query_adxl345 oid=%c rest_ticks=%u", cq=cmdqueue)
         self.ffreader.setup_query_command("query_adxl345_status oid=%c",
-                                          oid=self.oid, cq=cmdqueue)
+                                        oid=self.oid, cq=cmdqueue)
+        # Register Z position tracking
+        self.printer.register_event_handler("toolhead:sync_z_position", 
+                                        self._handle_z_position)
     def read_reg(self, reg):
         params = self.spi.spi_transfer([reg | REG_MOD_READ, 0x00])
         response = bytearray(params['response'])
@@ -243,10 +246,8 @@ class ADXL345:
     # Measurement decoding
     def _convert_samples(self, samples):
         (x_pos, x_scale), (y_pos, y_scale), (z_pos, z_scale) = self.axes_map
-        #toolhead = self.printer.lookup_object('toolhead')
-        current_z = z_pos # toolhead.get_position()[2]
         count = 0
-        for ptime, xlow, ylow, zlow, xzhigh, yzhigh in samples:
+        for ptime, xlow, ylow, zlow, xzhigh, yzhigh, current_z in samples:
             if yzhigh & 0x80:
                 self.last_error_count += 1
                 continue
@@ -305,3 +306,8 @@ def load_config(config):
 
 def load_config_prefix(config):
     return ADXL345(config)
+
+def _handle_z_position(self, curtime, z_pos):
+    if self.query_adxl345_cmd is not None:
+        self.mcu.lookup_command("set_adxl345_z oid=%c z_pos=%u",
+                              cq=self.spi.get_command_queue())(self.oid, z_pos)
