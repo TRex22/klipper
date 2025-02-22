@@ -111,7 +111,7 @@ class MPU9250:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
-            z_mm = float(current_z) / (1 << 16)  # Scale to mm
+            z_mm = (float(current_z) / (1 << 16)) + self.initial_z  # Scale to mm
             samples[count] = (round(ptime, 6), x, y, z, z_mm)
             count += 1
     # Start, stop, and process message batches
@@ -147,7 +147,7 @@ class MPU9250:
 
         # Get initial Z position
         toolhead = self.printer.lookup_object('toolhead')
-        initial_z = toolhead.get_position()[2]
+        self.initial_z = toolhead.get_position()[2]
 
         # Start bulk reading
         rest_ticks = self.mcu.seconds_to_clock(4. / self.data_rate)
@@ -155,7 +155,7 @@ class MPU9250:
         self.set_reg(REG_FIFO_EN, SET_ENABLE_FIFO)
         logging.info("MPU9250 starting '%s' measurements", self.name)
         # Initialize clock tracking
-        self.ffreader.note_start(initial_z)
+        self.ffreader.note_start()
         self.last_error_count = 0
     def _finish_measurements(self):
         # Halt bulk reading
