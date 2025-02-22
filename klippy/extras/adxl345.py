@@ -72,19 +72,15 @@ class AccelQueryHelper:
     def get_samples(self):
         if not self.msgs:
             return self.samples
-        toolhead = self.printer.lookup_object('toolhead')
         total = sum([len(m['data']) for m in self.msgs])
         count = 0
         self.samples = samples = [None] * total
         for msg in self.msgs:
-            for samp_time, x, y, z in msg['data']:
+            for samp_time, x, y, z, z_pos in msg['data']:
                 if samp_time < self.request_start_time:
                     continue
                 if samp_time > self.request_end_time:
                     break
-                # Get current Z position
-                pos = toolhead.get_position()
-                z_pos = pos[2]
                 samples[count] = Accel_Measurement(samp_time, x, y, z, z_pos)
                 count += 1
         del samples[count:]
@@ -247,6 +243,8 @@ class ADXL345:
     # Measurement decoding
     def _convert_samples(self, samples):
         (x_pos, x_scale), (y_pos, y_scale), (z_pos, z_scale) = self.axes_map
+        toolhead = self.printer.lookup_object('toolhead')
+        current_z = toolhead.get_position()[2]
         count = 0
         for ptime, xlow, ylow, zlow, xzhigh, yzhigh in samples:
             if yzhigh & 0x80:
@@ -260,7 +258,7 @@ class ADXL345:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
-            samples[count] = (round(ptime, 6), x, y, z)
+            samples[count] = (round(ptime, 6), x, y, z, current_z)
             count += 1
         del samples[count:]
     # Start, stop, and process message batches
