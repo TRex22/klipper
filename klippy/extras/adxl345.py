@@ -246,6 +246,8 @@ class ADXL345:
     # Measurement decoding
     def _convert_samples(self, samples):
         (x_pos, x_scale), (y_pos, y_scale), (z_pos, z_scale) = self.axes_map
+        toolhead = self.printer.lookup_object('toolhead')
+        stepper_z = toolhead.get_kinematics().get_steppers()[2]  # Z is typically index 2
         count = 0
         for ptime, xlow, ylow, zlow, xzhigh, yzhigh, current_z in samples:
             if yzhigh & 0x80:
@@ -259,9 +261,9 @@ class ADXL345:
             x = round(raw_xyz[x_pos] * x_scale, 6)
             y = round(raw_xyz[y_pos] * y_scale, 6)
             z = round(raw_xyz[z_pos] * z_scale, 6)
-            # Scale Z position from raw MCU value to mm
-            z_pos_scaled = (float(current_z) / 255.0) * self.initial_z
-            samples[count] = (round(ptime, 6), x, y, z, z_pos_scaled)
+            # Convert stepper position to mm
+            z_loc = stepper_z.get_commanded_position() 
+            samples[count] = (round(ptime, 6), x, y, z, z_loc)
             count += 1
         del samples[count:]
     # Start, stop, and process message batches
