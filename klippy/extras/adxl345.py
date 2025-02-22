@@ -300,14 +300,14 @@ class ADXL345:
             return {}
         return {'data': samples, 'errors': self.last_error_count,
                 'overflows': self.ffreader.get_last_overflows()}
+    
+    def _handle_z_position(self, curtime, z_pos):
+        if self.query_adxl345_cmd is not None:
+            self.mcu.lookup_command("set_adxl345_z oid=%c z_pos=%u",
+                                cq=self.spi.get_command_queue())(self.oid, z_pos)
 
 def load_config(config):
     return ADXL345(config)
 
 def load_config_prefix(config):
     return ADXL345(config)
-
-def _handle_z_position(self, curtime, z_pos):
-    if self.query_adxl345_cmd is not None:
-        self.mcu.lookup_command("set_adxl345_z oid=%c z_pos=%u",
-                              cq=self.spi.get_command_queue())(self.oid, z_pos)
