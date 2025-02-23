@@ -51,9 +51,9 @@ class AccelQueryHelper:
             # Avoid filling up memory with too many samples
             return False
         # Get current Z height from toolhead
-        current_pos = self.printer.lookup_object('toolhead').get_position()
-        z_height = current_pos[2]
-        msg['z_height'] = z_height
+        toolhead = self.printer.lookup_object('toolhead')
+        stepper_z = toolhead.get_kinematics().get_steppers()[2]  # Z is typically index 2
+        msg['z_height'] = stepper_z
         self.msgs.append(msg)
         return True
     def has_valid_samples(self):
