@@ -211,7 +211,7 @@ class ADXL345:
         mcu.register_config_callback(self._build_config)
         # Bulk sample message reading
         chip_smooth = self.data_rate * BATCH_UPDATES * 2
-        self.ffreader = bulk_sensor.FixedFreqReader(mcu, chip_smooth, "BBBBB")
+        self.ffreader = bulk_sensor.FixedFreqReader(mcu, chip_smooth, "BBBBBB")
         self.last_error_count = 0
         # Process messages in batches
         self.batch_bulk = bulk_sensor.BatchBulkHelper(
